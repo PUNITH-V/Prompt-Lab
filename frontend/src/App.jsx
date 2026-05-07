@@ -61,7 +61,7 @@ export default function App() {
   const [scores, setScores]       = useState({})
 
   useEffect(() => {
-    fetch("http://localhost:8000/history").then(r => r.json()).then(setHistory)
+    fetch("https://prompt-lab-7htx.onrender.com/history").then(r => r.json()).then(setHistory)
   }, [results])
 
   async function handleSubmit() {
@@ -76,7 +76,7 @@ export default function App() {
     setResults(Object.values(initial))
 
     await Promise.all(techniques.map(async (t) => {
-      const res = await fetch("http://localhost:8000/stream", {
+      const res = await fetch("https://prompt-lab-7htx.onrender.com/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt, temperature: temp, max_tokens: maxTokens, technique: t })
@@ -129,7 +129,7 @@ export default function App() {
     if (!results) return
     const newScores = {}
     await Promise.all(results.map(async r => {
-      const res = await fetch("http://localhost:8000/score", {
+      const res = await fetch("https://prompt-lab-7htx.onrender.com/score", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ output: r.output })
