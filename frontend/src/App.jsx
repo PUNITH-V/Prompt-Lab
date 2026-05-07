@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState } from "react"
 
 const STYLES = `
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -57,12 +57,11 @@ export default function App() {
   const [technique, setTechnique] = useState("all")
   const [results, setResults]     = useState(null)
   const [loading, setLoading]     = useState(false)
-  const [history, setHistory]     = useState([])
   const [scores, setScores]       = useState({})
-
-  useEffect(() => {
-    fetch("https://prompt-lab-7htx.onrender.com/history").then(r => r.json()).then(setHistory)
-  }, [results])
+  const [history, setHistory]     = useState(() => {
+    const saved = localStorage.getItem("prompt_history")
+    return saved ? JSON.parse(saved) : []
+  })
 
   async function handleSubmit() {
     setLoading(true)
@@ -104,6 +103,17 @@ export default function App() {
         }
       }
     }))
+
+    const newEntry = {
+      id: Date.now(),
+      prompt,
+      technique,
+      temperature: temp,
+      created_at: new Date().toISOString()
+    }
+    const updated = [newEntry, ...history].slice(0, 20)
+    setHistory(updated)
+    localStorage.setItem("prompt_history", JSON.stringify(updated))
 
     setLoading(false)
   }
@@ -165,17 +175,14 @@ export default function App() {
             />
             <div style={{ height: "0.5px", background: "#1a1a1a", margin: "12px 0" }} />
             <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
-
               <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#555" }}>
                 temp <span style={{ color: "#888" }}>{temp}</span>
                 <input type="range" min={0} max={1} step={0.1} value={temp} onChange={e => setTemp(+e.target.value)} />
               </div>
-
               <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#555" }}>
                 tokens
                 <input type="number" value={maxTokens} onChange={e => setMaxTokens(+e.target.value)} />
               </div>
-
               <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 12, color: "#555" }}>
                 technique
                 <select value={technique} onChange={e => setTechnique(e.target.value)}>
@@ -185,7 +192,6 @@ export default function App() {
                   <option value="cot">Chain of thought</option>
                 </select>
               </div>
-
               <button onClick={handleSubmit} disabled={loading || !prompt}
                 style={{ marginLeft: "auto", padding: "6px 18px", background: loading || !prompt ? "#1a1a1a" : "#fff", color: loading || !prompt ? "#444" : "#000", border: "none", borderRadius: 6, fontSize: 12, fontWeight: 500, cursor: loading || !prompt ? "not-allowed" : "pointer", transition: "all 0.15s" }}>
                 {loading ? "thinking..." : "Generate →"}
@@ -202,7 +208,7 @@ export default function App() {
 
           {/* Score Button */}
           {results && !loading && (
-            <div style={{ textAlign: "center", marginBottom: 16 }}>
+            <div style={{ textAlign: "center", marginBottom: 16, marginTop: 8 }}>
               <button onClick={scoreResults}
                 style={{ padding: "6px 18px", background: "#1a1a1a", border: "0.5px solid #222", borderRadius: 6, fontSize: 12, color: "#888", cursor: "pointer" }}>
                 Score responses ✦
@@ -222,7 +228,7 @@ export default function App() {
               </div>
               {history.map(h => (
                 <div key={h.id} onClick={() => setPrompt(h.prompt)}
-                  style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 16, padding: "10px 16px", borderBottom: "0.5px solid #141414", alignItems: "center", cursor: "pointer", transition: "background 0.1s" }}
+                  style={{ display: "grid", gridTemplateColumns: "1fr auto auto auto", gap: 16, padding: "10px 16px", borderBottom: "0.5px solid #141414", alignItems: "center", cursor: "pointer" }}
                   onMouseEnter={e => e.currentTarget.style.background = "#161616"}
                   onMouseLeave={e => e.currentTarget.style.background = "transparent"}>
                   <div style={{ fontSize: 12, color: "#666" }}>{h.prompt}</div>
