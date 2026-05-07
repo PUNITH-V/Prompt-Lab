@@ -3,7 +3,13 @@
 > A developer playground for comparing LLM prompting techniques side by side — built with FastAPI, LangChain, and React.
 
 ---
+## 🚀 Live Demo
 
+- **Frontend:** [Vercel](https://prompt-lab-delta-two.vercel.app/)
+- **Backend API:** [Render](https://prompt-lab-7htx.onrender.com/)
+- **API Docs:** [Swagger UI](https://prompt-lab-7htx.onrender.com/docs)
+
+---
 ## What is this?
 
 Prompt Lab lets you write a prompt once and instantly see how three different prompting strategies affect the LLM's response — in real time, with streaming output, quality scoring, and persistent history.
